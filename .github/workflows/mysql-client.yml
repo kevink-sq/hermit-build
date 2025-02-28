@@ -119,7 +119,7 @@ jobs:
           cp 22.04/usr/bin/${{ matrix.binary }} bin/${{ matrix.binary }}-22.04
       - name: Repack package with deterministic settings
         run: GZIP=-n tar --sort=name --mtime='2020-01-01 00:00:00' -czf percona-${{ matrix.binary }}-${{ matrix.version }}-ubuntu_multirelease-${{ matrix.arch }}.tar.gz bin
-      - name: Upload Release
+      - name: Upload Release.
         uses: ncipollo/release-action@v1
         with:
           tag: mysql-client
