@@ -1,0 +1,50 @@
+name: Verify Deterministic Build
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        required: true
+        type: string
+        description: "Name of the artifact to verify"
+      build_command:
+        required: true
+        type: string
+        description: "Command(s) to build the artifact"
+      working_directory:
+        required: false
+        type: string
+        default: "."
+        description: "Directory where the build should run"
+
+jobs:
+  verify-deterministic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: First Build
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          ${{ inputs.build_command }}
+          sha256sum ${{ inputs.artifact_name }} > first_build.sha256
+
+      - name: Second Build
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          rm ${{ inputs.artifact_name }}
+          ${{ inputs.build_command }}
+          sha256sum ${{ inputs.artifact_name }} > second_build.sha256
+
+      - name: Compare Builds
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "First build SHA256:"
+          cat first_build.sha256
+          echo "Second build SHA256:"
+          cat second_build.sha256
+          if ! diff first_build.sha256 second_build.sha256; then
+            echo "❌ Builds are not deterministic!"
+            exit 1
+          fi
+          echo "✅ Builds are deterministic"
