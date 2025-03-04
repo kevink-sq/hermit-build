@@ -9,17 +9,5 @@ deterministic_tar() {
   # Fixed timestamp rather than version controlled
   FIXED_TIMESTAMP="2024-01-01T00:00:00Z"
 
-  LC_ALL=C tar \
-    --sort=name \
-    --format=posix \
-    --pax-option=exthdr.name=%d/PaxHeaders/%f \
-    --pax-option=delete=atime,delete=ctime \
-    --clamp-mtime \
-    --mtime="${FIXED_TIMESTAMP}" \
-    --numeric-owner \
-    --owner=0 \
-    --group=0 \
-    --mode=go+u,go-w \
-    -cf - "${SOURCE_DIR}" \
-    | gzip --no-name --best > "${ARCHIVE_NAME}"
+  tar -cf - "${SOURCE_DIR}" | gzip  > "${ARCHIVE_NAME}"
 }
